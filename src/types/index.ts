@@ -15,6 +15,8 @@ export interface IProduct {
     description: string,
 }
 
+export type IAbstractCard = Pick<IProduct, 'title' | 'price'>
+
 export interface IBuyer {
     payment: TPayment | '',
     address: string,
@@ -41,4 +43,22 @@ export interface IPostOrderBody extends Omit<IBuyer, 'payment'> {
     payment: TPayment;
     total: number;
     items: string[];
+}
+
+export interface IGallery {
+    catalog: HTMLElement[];
+}
+
+export interface IHeader {
+    counter: number;
+}
+
+export type TCardCatalog = Pick<IProduct, 'image' | 'category'>
+
+export interface ICardActionsClick {
+  onClick: (event: MouseEvent) => void;
+}
+
+export interface ICardActionsDeleteClick {
+  onDeleteClick: (event: MouseEvent) => void;
 }
