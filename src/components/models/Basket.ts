@@ -1,8 +1,11 @@
 import { IProduct } from '../../types';
+import { IEvents } from "../base/Events";
 
 export class Basket {
   constructor(
     protected _products: IProduct[] = [],
+    protected events: IEvents,
+    
   ) {}
 
   getSelectedProduct(): IProduct[] {
@@ -11,6 +14,7 @@ export class Basket {
 
   addProductInBasket(product: IProduct): void {
     this._products.push(product);
+    this.events.emit('basket:changed');
   }
 
   deleteProductFromBasket(product: IProduct): void {
@@ -18,10 +22,12 @@ export class Basket {
     if (index !== -1) {
       this._products.splice(index, 1);
     }
+    this.events.emit('basket:changed');
   }
 
   clearBasket(): void {
     this._products = [];
+    this.events.emit('basket:changed');
   }
 
   getPriceSelectedProduct(): number {

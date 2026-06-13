@@ -1,12 +1,12 @@
 import { Card } from '../views/Card'
-import { ensureElement } from "../../utils/utils";
-import { ICardActionsClick } from '../../types/index'
+import { ensureElement } from '../../utils/utils';
+import { IActionsClick } from '../../types/index'
 
 export class CardCatalog extends Card {
   protected imageElement: HTMLImageElement;
   protected categoryElement: HTMLElement;
 
-  constructor(container: HTMLElement,  actions?: ICardActionsClick){
+  constructor(container: HTMLElement, actions?: IActionsClick){
     super(container);
 
     this.imageElement = ensureElement<HTMLImageElement>('.card__image', this.container);
@@ -17,7 +17,7 @@ export class CardCatalog extends Card {
   }
 
   set image(value: string) {
-    this.setImage(this.imageElement, value, this.title)
+    this.setImage(this.imageElement, value, this.titleElement.textContent)
   }
 
   set category(value: string) {

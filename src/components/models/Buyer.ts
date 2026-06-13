@@ -1,4 +1,6 @@
 import { IBuyer, IValidationResult, TPayment } from '../../types';
+import { IEvents } from "../base/Events";
+
 
 export class Buyer {
   constructor(
@@ -6,7 +8,8 @@ export class Buyer {
     protected _address: string = '',
     protected _phone: string = '',
     protected _email: string = '',
-  ) { }
+    protected events: IEvents,
+  ) {}
 
   getBuyerDetails(): IBuyer {
     return {
@@ -22,22 +25,27 @@ export class Buyer {
     this._email = '';
     this._payment = '';
     this._phone = '';
+    this.events.emit('buyer:changed');
   }
 
   savePayment(payment: TPayment): void {
     this._payment = payment;
+    this.events.emit('buyer:changed');
   }
 
   saveAddress(address: string): void {
     this._address = address;
+    this.events.emit('buyer:changed');
   }
 
   savePhone(phone: string): void {
     this._phone = phone;
+    this.events.emit('buyer:changed');
   }
 
   saveEmail(email: string): void {
     this._email = email;
+    this.events.emit('buyer:changed');
   }
 
   validPayment(): IValidationResult {

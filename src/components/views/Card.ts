@@ -18,6 +18,6 @@ export abstract class Card extends Component<IAbstractCard> {
   }
 
   set price(value: number) {
-    this.priceElement.textContent = String(value);
+    this.priceElement.textContent = `${value} синапсов`;
   }
 }

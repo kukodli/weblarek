@@ -53,12 +53,33 @@ export interface IHeader {
     counter: number;
 }
 
+export interface IModal {
+    content: HTMLElement;
+}
+
 export type TCardCatalog = Pick<IProduct, 'image' | 'category'>
 
-export interface ICardActionsClick {
+export interface IActionsClick {
   onClick: (event: MouseEvent) => void;
 }
 
-export interface ICardActionsDeleteClick {
+export interface IActionsDeleteClick {
   onDeleteClick: (event: MouseEvent) => void;
+}
+
+export interface IModalActions {
+  onClose: () => void;
+}
+
+export interface ISuccessActions {
+  onClick: () => void;
+}
+
+export interface ISuccess {
+  total: number;
+}
+
+export interface IBasket {
+    items: HTMLElement[];
+    sum: number;
 }
