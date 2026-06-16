@@ -42,11 +42,6 @@ export class Basket {
   }
 
   haveProductById(id: string): boolean {
-    const result = this._products.find(el => el.id === id);
-    if (result) {
-      return true;
-    } else {
-      return false;
-    }
+    return this._products.some(el => el.id === id);
   }
 }

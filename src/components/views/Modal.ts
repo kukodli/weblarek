@@ -16,6 +16,13 @@ export class Modal extends Component<IModal>{
       this.close();
       actions?.onClose();
     });
+
+    this.container.addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) {
+        this.close();
+        actions?.onClose();
+      }
+    })
   }
 
   protected handleEsc = (evt: KeyboardEvent) => {
@@ -31,7 +38,7 @@ export class Modal extends Component<IModal>{
 
   close() {
     this.container.classList.remove('modal_active');
-    document.addEventListener('keydown', this.handleEsc);
+    document.removeEventListener('keydown', this.handleEsc);
   }
 
   set content(value: HTMLElement) {

@@ -1,8 +1,10 @@
 import { Card } from '../views/Card'
 import { ensureElement } from '../../utils/utils';
-import { IActionsClick } from '../../types/index'
+import { IActionsClick, CategoryKey, TCardCatalogView } from '../../types/index';
+import { categoryMap } from '../../utils/constants';
+import { CDN_URL } from '../../utils/constants';
 
-export class CardCatalog extends Card {
+export class CardCatalog extends Card<TCardCatalogView> {
   protected imageElement: HTMLImageElement;
   protected categoryElement: HTMLElement;
 
@@ -17,10 +19,17 @@ export class CardCatalog extends Card {
   }
 
   set image(value: string) {
-    this.setImage(this.imageElement, value, this.titleElement.textContent)
+    this.setImage(this.imageElement, `${CDN_URL}${value}`, this.titleElement.textContent ?? '');
   }
 
   set category(value: string) {
     this.categoryElement.textContent = value;
+
+    for (const key in categoryMap) {
+      this.categoryElement.classList.toggle(
+        categoryMap[key as CategoryKey],
+        key === value
+      );
+    }
   }
-}
+  }

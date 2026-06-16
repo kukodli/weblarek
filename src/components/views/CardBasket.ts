@@ -1,8 +1,8 @@
 import { Card } from '../views/Card';
 import { ensureElement } from '../../utils/utils';
-import { IActionsDeleteClick } from '../../types/index'
+import { IActionsDeleteClick, TCardBasketView } from '../../types/index'
 
-export class CardBasket extends Card {
+export class CardBasket extends Card<TCardBasketView> {
   protected buttonDelete: HTMLButtonElement;
   protected indexElement: HTMLElement;
 

@@ -1,8 +1,7 @@
 import { ensureElement } from "../../utils/utils";
 import { Component } from "../base/Component";
-import { IAbstractCard} from '../../types/index'
 
-export abstract class Card extends Component<IAbstractCard> {
+export abstract class Card<T> extends Component<T> {
 
   protected titleElement: HTMLElement;
   protected priceElement: HTMLElement;
@@ -17,7 +16,9 @@ export abstract class Card extends Component<IAbstractCard> {
     this.titleElement.textContent = value;
   }
 
-  set price(value: number) {
-    this.priceElement.textContent = `${value} синапсов`;
+  set price(value: number | null) {
+    this.priceElement.textContent = value === null
+    ? 'Бесценно'
+    :`${value} синапсов`;
   }
 }

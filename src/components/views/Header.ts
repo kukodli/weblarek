@@ -4,7 +4,7 @@ import { IEvents } from "../base/Events";
 import { IHeader } from '../../types/index'
 
 export class Header extends Component<IHeader> {
-  protected counterElement: HTMLSpanElement;
+  protected counterElement: HTMLElement;
   protected basketButton: HTMLButtonElement;
 
   constructor(protected events: IEvents, container: HTMLElement){

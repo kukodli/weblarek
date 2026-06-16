@@ -1,3 +1,5 @@
+import { categoryMap } from '../utils/constants';
+
 export type ApiPostMethods = 'POST' | 'PUT' | 'DELETE';
 export type TPayment = 'online' | 'offline';
 
@@ -15,7 +17,35 @@ export interface IProduct {
     description: string,
 }
 
-export type IAbstractCard = Pick<IProduct, 'title' | 'price'>
+export type TCardCatalogView = Pick<
+    IProduct,
+    'title' |
+    'price' |
+    'image' |
+    'category'
+>
+
+export type TCardModalView = Pick<
+    IProduct,
+    'title' |
+    'price' |
+    'image' |
+    'category' |
+    'description'
+>
+
+export type TCardBasketView = Pick<
+    IProduct,
+    'title' |
+    'price'
+    > & {index: number}
+
+export interface IOrderForm extends Pick<IBuyer, 'address' | 'payment'>{
+    valid: boolean,
+    errors: string,
+}
+
+export type IContactsForm = Pick<IBuyer, 'email' | 'phone'>
 
 export interface IBuyer {
     payment: TPayment | '',
@@ -83,3 +113,5 @@ export interface IBasket {
     items: HTMLElement[];
     sum: number;
 }
+
+export type CategoryKey = keyof typeof categoryMap;

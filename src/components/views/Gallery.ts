@@ -1,4 +1,3 @@
-import { ensureElement } from "../../utils/utils";
 import { Component } from "../base/Component";
 import { IGallery } from '../../types/index'
 
@@ -8,7 +7,7 @@ protected catalogElement: HTMLElement;
   constructor(container: HTMLElement) {
     super(container);
 
-    this.catalogElement = ensureElement<HTMLElement>('.gallery', this.container);
+    this.catalogElement = this.container;
   }
 
   set catalog(items: HTMLElement[]) {
