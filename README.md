@@ -178,6 +178,26 @@ Presenter - презентер содержит основную логику п
 `postOrder(order: IPostOrderBody): Promise<IPostOrderAnswer>` - метод для отправки на сервер данных о покупателе и выбранных товарах, возвращает объект, подтверждающий покупку на определенную сумму.
 
 ### Слой Представлений
+#### Абстрактные классы
+##### Класс Card
+Абстрактный класс для создания карточек в любом месте: на главной странице, в модальном окне и в корзине.
+
+Поля класса:
+`protected titleElement: HTMLElement` - название товара в карточке.
+`protected priceElement: HTMLElement` - цена товара в карточке. 
+
+Методы класса:
+`set title(value: string)` - для добавления заголовка/названия товара.
+`set price(value: number)` - для добавления стоимости товара в картчоку.
+
+#### Класс Form
+Абстрактный класс для создания форм: оплыт и контактных данных.
+
+Поля класса:
+`protected inputs: HTMLInputElement[]` - элементы формы, куда пользователь может ввести свои данные: адрес, телефон, почта.
+`protected textError: HTMLElement` - Сообщение о корректном заполнении форм, информирует о том, какие поля не заполнены.
+`protected submitButton: HTMLButtonElement` - Кнопка, позволяющая перейти дальше по оформлению покупки. Кнопки "Далее" и "Оплатить".
+
 #### Класс Header
 Содержит кнопку корзины и счетчик товаров в ней.
 
@@ -197,13 +217,99 @@ Presenter - презентер содержит основную логику п
 Методы класса: 
 `set catalog(items: HTMLElement[])` - добавление каталога, состоящего из карточек товара.
 
-#### Класс Card
-Абстрактный класс для создания карточек в любом месте: на главной странице, в модальном окне и в корзине.
+#### Класс BasketView
+Отображение корзины и товаров в ней.
 
 Поля класса:
-`protected titleElement: HTMLElement` - название товара в карточке.
-`protected priceElement: HTMLElement` - цена товара в карточке. 
+`protected ulElement: HTMLElement` - список товаров.
+`protected buttonElement: HTMLButtonElement` - кнопка оформления заказа при наличии товаров в корзине.
+`protected basketPrice: HTMLElement` - итоговая сумма товаров, входящих в корзину.
 
 Методы класса:
-`set title(value: string)` - для добавления заголовка/названия товара.
-`set price(value: number)` - для добавления стоимости товара в картчоку.
+`set items(value: HTMLElement[])` - добавление товаров в корзину, в список товаров.
+`set sum(value: number)` - вывод итоговой суммы товаров в корзине.
+`set disabled(value: boolean)` - блокировка кнопки оформления заказа, в случае, если товаров в корзине нет.
+
+#### Класс CarBasket
+Описывает вид карточки в корзине.
+
+Поля класса:
+`protected buttonDelete: HTMLButtonElement` - кнопка удаление товара из корзины.
+`protected indexElement: HTMLElement` - счетчик товаров в корзине.
+
+Методы класса: 
+`set index(value: number)` - метод для изменения счетчика.
+
+#### Класс CardCatalog
+Отвечает за представление карточек на главной странице в каталоге.
+
+Поля класса:
+`protected imageElement: HTMLImageElement` - картинка, относящаяся к товару.
+`protected categoryElement: HTMLElement` - категория товра.
+
+Методы класса:
+`set image(value: string)` - устанавливает картинку товара.
+`set category(value: string)` - устанавливает категорию товара.
+
+#### Класс CardModal
+Представление выбранной карточки в модальном окне.
+
+Поля класса:
+`protected imageElement: HTMLImageElement` - картинка, относящаяся к товару.
+`protected categoryElement: HTMLElement` - категория товра.
+`protected descriptionElement: HTMLElement` - описание товара.
+
+Методы класса:
+`set image(value: string)` - - устанавливает картинку товара.
+`set category(value: string)` - устанавливает категорию товара.
+`set description(value: string)` - устанавливает описание товара.
+`set button(value: string)` - устанавливает текст кнопки, либо "в корзину", либо "удалить из корзины".
+`set disabled(value: boolean)` - метод для блокировки кнопки покупки.
+
+
+#### Класс ContactsForm
+Форма с контактными данными пользователя.
+
+Поля класса:
+`protected phoneInput: HTMLInputElement` - поле для заполнения телефона.
+`protected emailInput: HTMLInputElement` - поле для заполнения почты.
+
+Методы класса:
+`set email(value: string)` - изменение почты пользователя.
+`set phone(value: string)` - изменение телефона пользователя.
+
+#### Класс Modal
+Модальное окно, содержащее разный контент.
+
+Поля класса:
+`protected modalClose: HTMLButtonElement` - кнопка закрытия модального окна.
+`protected modalContent: HTMLElement` - контент, содержащийся в модальном окне.
+
+Методы класса: 
+`open()` - открытие модального окна.
+`close()` - закрытие модального окна.
+`set content(value: HTMLElement)` - добавление контента в модальное окно.
+
+#### Класс OrderForm
+Форма оплаты пользователя.
+
+Поля класса:
+`protected buttons: HTMLButtonElement[]` - кнопки оплаты: по карте или при получении.
+`protected addressInput: HTMLInputElement` - поле ввода адреса.
+
+Методы класса:
+`set address(value: string)` - изменение адреса.
+`set payment(value: string)` - изменение способа оплаты.
+
+#### Класс Success
+Завершающий этап покупки, информирующий о том, что покупка завершена.
+
+Поля класса:
+`protected descriptionElement: HTMLElement` - информация о том, сколько было списано средств.
+`protected buttonElement` - кнопка для возврата за покупками.
+
+Методы класса:
+`set total(value: number)` - изменение списанной суммы.
+
+### Презентер
+Содержит связи между моделью и данными. В файле main.ts создаются экземляры вышеуказанных классов, представлений и моделей, презентер обрабатывает события 'catalog:changed', 'product:selected', 'basket:open', 'basket:changed', 'basket:submit', 'buyer:changed', 'order:submit', 'buyer:changed', 'contacts:submit'.
