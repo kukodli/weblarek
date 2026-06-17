@@ -14,7 +14,6 @@ export class OrderForm extends Form<IOrderForm > {
     this.buttons = ensureAllElements<HTMLButtonElement>('.button_alt', this.container);
     this.buttons.forEach((btn) => {
       btn.addEventListener('click', () => {
-        this.payment = btn.name;
         this.events.emit('order:payment-change', { payment: btn.name });
       })
     })

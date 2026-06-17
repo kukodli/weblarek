@@ -45,8 +45,10 @@ export interface IOrderForm extends Pick<IBuyer, 'address' | 'payment'>{
     errors: string,
 }
 
-export type IContactsForm = Pick<IBuyer, 'email' | 'phone'>
-
+export interface IContactsForm extends Pick<IBuyer, 'email' | 'phone'> {
+  valid: boolean;
+  errors: string;
+}
 export interface IBuyer {
     payment: TPayment | '',
     address: string,

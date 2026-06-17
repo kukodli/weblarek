@@ -17,6 +17,7 @@ import { CardBasket } from './components/views/CardBasket';
 import { OrderForm } from './components/views/OrderForm';
 import { Success } from './components/views/Success';
 import { ContactsForm } from './components/views/ContactsForm';
+import { IProduct } from './types';
 
 const events = new EventEmitter();
 const catalog = new ProductCatalog([], null, events);
@@ -34,6 +35,19 @@ const headerContainer = document.querySelector('.header') as HTMLElement;
 const gallery = new Gallery(galletyContainer);
 const modal = new Modal(modalContainer);
 const header = new Header(events, headerContainer);
+const preview = new CardModal(cloneTemplate('#card-preview'), {
+  onClick() {
+    events.emit('preview:toggle');
+  }
+});
+const view = new BasketView(cloneTemplate('#basket'), events);
+const orderForm = new OrderForm(cloneTemplate('#order'), events);
+const contactsForm = new ContactsForm(cloneTemplate('#contacts'), events);
+const success = new Success(cloneTemplate('#success'), {
+    onClick() {
+      events.emit('success:close');
+    }
+  });
 
 larekApi.getListProducts()
   .then((data) => {
@@ -45,7 +59,7 @@ events.on('catalog:changed', () => {
   const cards = catalog.getProducts().map((product) => {
     const card = new CardCatalog(cloneTemplate('#card-catalog'), {
       onClick: () => {
-        catalog.setSelectedProduct(product);
+        events.emit('card:select', product);
       }
     });
     return card.render({
@@ -60,23 +74,14 @@ events.on('catalog:changed', () => {
   });
 });
 
+events.on<IProduct>('card:select', (product) => {
+  catalog.setSelectedProduct(product);
+  events.emit('product:selected');
+});
+
 events.on('product:selected', () => {
   const product = catalog.getSelectedProduct();
   if (!product) return;
-  const preview = new CardModal(cloneTemplate('#card-preview'), {
-    onClick() {
-      if (product.price === null) {
-        return;
-      }
-      if (basket.haveProductById(product.id)) {
-        basket.deleteProductFromBasket(product);
-        preview.button = 'В корзину';
-      } else {
-        basket.addProductInBasket(product);
-        preview.button = 'Удалить из корзины';
-      }
-    }
-  });
   modal.content = preview.render({
     title: product.title,
     price: product.price,
@@ -95,14 +100,28 @@ events.on('product:selected', () => {
   modal.open();
 });
 
+events.on('preview:toggle', () => {
+  const product = catalog.getSelectedProduct();
+  if (!product || product.price === null) return;
+  if (basket.haveProductById(product.id)) {
+    basket.deleteProductFromBasket(product);
+  } else {
+    basket.addProductInBasket(product);
+  }
+  modal.close();
+})
+
 events.on('basket:open', () => {
-  const view = new BasketView(cloneTemplate('#basket'), events);
+  modal.content = view.render();
+  modal.open();
+});
+
+events.on('basket:changed', () => {
   view.render({
     items: basket.getSelectedProduct().map((product, index) => {
       const item = new CardBasket(cloneTemplate('#card-basket'), {
         onDeleteClick() {
           basket.deleteProductFromBasket(product);
-          events.emit('basket:open');
         }
       });
       return item.render({
@@ -116,28 +135,16 @@ events.on('basket:open', () => {
   if (basket.getSumProduct() === 0) {
     view.disabled = true;
   }
-  modal.content = view.render();
-  modal.open();
-});
-
-events.on('basket:changed', () => {
   header.render({
-    counter: basket.getSumProduct()
+    counter: basket.getSumProduct(),
   });
 });
 
-let orderForm: OrderForm | null = null;
-
 events.on('basket:submit', () => {
-  orderForm = new OrderForm(cloneTemplate('#order'), events);
   orderForm.valid = false;
   modal.content = orderForm.render({
-    address: '',
-    payment: '',
-    errors: '',
-    valid: false,
+    ...buyer.getBuyerDetails(),
   })
-  modal.open();
 });
 
 events.on<{ payment: string }>('order:payment-change', (data) => {
@@ -150,26 +157,10 @@ events.on<{ field: string, value: string }>('order:change', (data) => {
   }
 });
 
-events.on('buyer:changed', () => {
-  const payment = buyer.validPayment();
-  const address = buyer.validAddress();
-
-  if (!orderForm) return;
-  orderForm.valid = payment.isValid && address.isValid;
-  orderForm.errors = [
-    payment.error,
-    address.error,
-  ].filter(Boolean).join(', ');
-});
-
-let contactsForm: ContactsForm | null = null;
-
 events.on('order:submit', () => {
   if (!buyer.validPayment().isValid || !buyer.validAddress().isValid) {
     return;
   }
-
-  contactsForm = new ContactsForm(cloneTemplate('#contacts'), events);
   modal.content = contactsForm.render();
 })
 
@@ -183,19 +174,29 @@ events.on<{ field: string, value: string }>('contacts:change', (data) => {
 });
 
 events.on('buyer:changed', () => {
-  if (contactsForm) {
-    const email = buyer.validEmail();
-    const phone = buyer.validPhone();
-    contactsForm.valid = email.isValid && phone.isValid;
-    contactsForm.errors = [
-      email.error,
-      phone.error,
-    ].filter(Boolean).join(', ');
-  }
+  const data = buyer.getBuyerDetails();
+  orderForm.render({
+    address: data.address,
+    payment: data.payment,
+    valid: buyer.validAddress().isValid && buyer.validPayment().isValid,
+    errors: [
+      buyer.validAddress().error,
+      buyer.validPayment().error,
+    ].filter(Boolean).join(', ')
+  });
+  contactsForm.render({
+    email: data.email,
+    phone: data.phone,
+    valid: buyer.validEmail().isValid && buyer.validPhone().isValid,
+    errors: [
+      buyer.validEmail().error,
+      buyer.validPhone().error,
+    ].filter(Boolean).join(', ')
+  })
 });
 
 events.on('contacts:submit', async () => {
-  const buyerData = buyer.getBuyerDetails();
+  try {const buyerData = buyer.getBuyerDetails();
   if (!buyerData.payment) {
     return
   };
@@ -207,14 +208,15 @@ events.on('contacts:submit', async () => {
     items: basket.getSelectedProduct().map(i => i.id),
     total: basket.getPriceSelectedProduct(),
   });
-  const success = new Success(cloneTemplate('#success'), {
-    onClick() {
-      modal.close();
-      basket.clearBasket();
-      buyer.clearBuyerDetails();
-    }
-  });
+  basket.clearBasket();
+  buyer.clearBuyerDetails();
   modal.content = success.render({
     total: result.total,
-  })
+  })} catch(error) {
+    console.log(error);
+  }
 })
+
+events.on('success:close', () => {
+  modal.close();
+});
