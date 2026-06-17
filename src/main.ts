@@ -27,12 +27,12 @@ const api = new Api(API_URL);
 const larekApi = new LarekApi(api);
 
 // Контейнеры
-const galletyContainer = document.querySelector('.gallery') as HTMLElement;
+const galleryContainer = document.querySelector('.gallery') as HTMLElement;
 const modalContainer = document.getElementById('modal-container') as HTMLElement;
 const headerContainer = document.querySelector('.header') as HTMLElement;
 
 // Представления
-const gallery = new Gallery(galletyContainer);
+const gallery = new Gallery(galleryContainer);
 const modal = new Modal(modalContainer);
 const header = new Header(events, headerContainer);
 const preview = new CardModal(cloneTemplate('#card-preview'), {
@@ -82,6 +82,14 @@ events.on<IProduct>('card:select', (product) => {
 events.on('product:selected', () => {
   const product = catalog.getSelectedProduct();
   if (!product) return;
+  if (product.price === null) {
+    preview.disabled = true;
+  } else {
+    preview.disabled = false;
+    preview.button = basket.haveProductById(product.id)
+      ? 'Удалить из корзины'
+      : 'В корзину';
+  }
   modal.content = preview.render({
     title: product.title,
     price: product.price,
@@ -89,14 +97,6 @@ events.on('product:selected', () => {
     description: product.description,
     image: product.image,
   });
-  if (product.price === null) {
-    preview.disabled = true;
-  } else {
-    preview.button = basket.haveProductById(product.id)
-    ? 'Удалить из корзины'
-    : 'В корзину';
-  }
-  modal.content = preview.render();
   modal.open();
 });
 
@@ -109,7 +109,7 @@ events.on('preview:toggle', () => {
     basket.addProductInBasket(product);
   }
   modal.close();
-})
+});
 
 events.on('basket:open', () => {
   modal.content = view.render();

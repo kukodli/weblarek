@@ -24,8 +24,14 @@ export class OrderForm extends Form<IOrderForm > {
   }
 
   set payment(value: string) {
+    const selected = value === 'online'
+      ? 'card'
+      : value === 'offline'
+        ? 'cash'
+        : value;
+
     this.buttons.forEach((btn) => {
-      if (btn.name === value) {
+      if (btn.name === selected) {
         btn.classList.add('button_alt-active');
       } else {
         btn.classList.remove('button_alt-active');
